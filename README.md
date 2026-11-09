@@ -158,3 +158,16 @@ solicitação deve acontecer. Ative durante o treino, pause/continue, reinicie e
 conclua. Ao voltar à configuração, a escolha é preservada. Se houver falha, o timer
 continua; voltar a uma aba visível permite nova tentativa quando o treino estiver
 ativo e a opção habilitada. Rejeições não causam tentativas em loop.
+
+
+## Monetização opcional
+
+Apoio voluntário e espaço AdSense estão preparados exclusivamente na configuração do
+treino. Sem configuração, não aparecem placeholders/botões nem são carregados scripts.
+Copie `.env.example` para `.env` e use apenas IDs/URL públicos reais. A URL de apoio
+HTTPS ativa o link externo após rebuild. Os IDs do AdSense preparam o slot manual;
+**o script/veiculação ainda dependem da integração futura do provedor e consentimento**.
+
+Consulte [configuração e ativação de monetização](docs/monetization.md) para variáveis,
+privacidade/CMP, tamanho reservado, limites da integração e verificações. O timer e
+os demais recursos continuam gratuitos e independentes da monetização.

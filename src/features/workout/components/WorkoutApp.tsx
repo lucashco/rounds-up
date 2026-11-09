@@ -1,3 +1,5 @@
+import { AdSlot } from '../../monetization/AdSlot';
+import { SupportLink } from '../../monetization/SupportLink';
 import { useEffect, useRef, useState } from 'react';
 import { createWorkoutAudio } from '../browser/workoutAudio';
 import { createWorkoutDraft, workoutToDraft } from '../form/workoutForm';
@@ -29,12 +31,15 @@ export default function WorkoutApp() {
       audio.stop();
       setSession(null);
       requestAnimationFrame(() => builder.current?.querySelector('h1')?.focus());
-    }} /> : <WorkoutBuilder draft={draft} onChange={setDraft} onSave={library.save}
+    }} /> : <><WorkoutBuilder draft={draft} onChange={setDraft} onSave={library.save}
       soundToggle={<div className="space-y-2">{soundToggle}<WakeLockToggle enabled={wakeLockEnabled} onChange={setWakeLockEnabled} /></div>}
       library={<SavedWorkouts library={library} onLoad={name => {
         const saved = library.load(name);
         if (saved) { setDraft(workoutToDraft(saved)); requestAnimationFrame(() => document.getElementById('workout-name')?.focus()); }
       }} />}
-      onStart={workout => { if (soundsEnabled) unlock(); setSession(workout); }} />}
+      onStart={workout => { if (soundsEnabled) unlock(); setSession(workout); }} />
+      <AdSlot />
+      <SupportLink />
+    </>}
   </div>;
 }
