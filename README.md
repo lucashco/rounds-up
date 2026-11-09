@@ -8,10 +8,10 @@ com durações individuais).
 
 ## Executar
 
-Use Node >=22.23.4 e pnpm, preservando o lockfile existente:
+Use Node >=22.23.4 e pnpm 10.28.2, preservando o lockfile existente:
 
 ```sh
-pnpm install
+pnpm install --frozen-lockfile
 npm run dev
 ```
 
@@ -34,6 +34,36 @@ npm run test
 
 Os testes do domínio rodam em Node. Os testes de interação usam jsdom, React
 Strict Mode e relógios controlados, com o gerador, motor e hook reais.
+
+## Cloudflare Workers Builds
+
+A aplicação continua estática: Astro gera `dist/`, e `wrangler.toml` publica esse
+diretório como Workers Static Assets, sem script Worker, adaptador SSR ou backend.
+
+Configure o projeto Workers Builds com a raiz do repositório (`.`), nome do Worker
+`rounds-up` e estes comandos:
+
+- Build: `pnpm run build`
+- Deploy: `npx wrangler deploy`
+
+`packageManager` fixa pnpm 10.28.2, e `.node-version` seleciona Node 22.23.4.
+Se houver variáveis de build `PNPM_VERSION` ou `NODE_VERSION` já configuradas no
+painel, alinhe-as com essas versões ou remova os overrides. Preserve
+`pnpm-lock.yaml` e a extensão `@astrojs/astro2tsx` em `package.json`; não desative
+o frozen lockfile para contornar divergências de configuração.
+
+Antes de publicar, valide localmente:
+
+```sh
+pnpm install --frozen-lockfile
+pnpm check
+pnpm test
+pnpm build
+```
+
+O deploy ocorre apenas quando solicitado explicitamente ou acionado pela
+integração de builds configurada no painel. As opções de versão do ambiente estão
+documentadas em [Workers Builds — Build image](https://developers.cloudflare.com/workers/ci-cd/builds/build-image/).
 
 ## Testar manualmente
 
