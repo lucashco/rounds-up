@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+@layer base {
+  html {
+    font-family: system-ui, sans-serif;
+    color-scheme: dark;
+    background: #101914;
+    color: #f2f5ef;
+  }
+  body { margin: 0; min-width: 320px; }
+}
+
+@layer base {
+  button:not(:disabled), a, label:has(input[type='radio']) { cursor: pointer; }
+  button:focus-visible, a:focus-visible, input:focus-visible {
+    outline: 2px solid #bef264;
+    outline-offset: 4px;
+  }
+}
+
+@layer components {
+  .workout-progress {
+    display: block;
+    overflow: hidden;
+    appearance: none;
+    border: none;
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.08);
+  }
+  .workout-progress::-webkit-progress-bar { background: rgb(255 255 255 / 0.08); }
+  .workout-progress::-webkit-progress-value { background: currentColor; border-radius: 999px; }
+  .workout-progress::-moz-progress-bar { background: currentColor; border-radius: 999px; }
+}
