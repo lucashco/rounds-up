@@ -4,7 +4,7 @@ import type { useSavedWorkouts } from '../hooks/useSavedWorkouts';
 export function SavedWorkouts({ library, onLoad }: { library: ReturnType<typeof useSavedWorkouts>; onLoad: (name: string) => void }) {
   const confirmation = useRef<HTMLDivElement>(null);
   useEffect(() => { if (library.pending) confirmation.current?.focus(); }, [library.pending]);
-  return <section aria-label="Treinos salvos" className="mb-6 rounded-2xl border border-white/10 bg-white/[0.025] p-4 sm:p-5">
+  return <section aria-label="Treinos salvos" className="saved-workouts">
     <details>
       <summary className="min-h-11 cursor-pointer content-center font-semibold">Treinos salvos <span className="ml-2 text-sm text-stone-400">({library.workouts.length})</span></summary>
       {!library.ready ? <p className="py-3 text-sm text-stone-400">Carregando treinos…</p> : library.workouts.length === 0 ? <p className="py-3 text-sm text-stone-400">Salve um treino para reutilizá-lo neste dispositivo.</p> :

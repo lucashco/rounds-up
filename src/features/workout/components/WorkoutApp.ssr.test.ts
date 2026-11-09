@@ -6,11 +6,10 @@ import WorkoutApp from './WorkoutApp';
 it('renderiza a aplicação sem window, localStorage, AudioContext ou Wake Lock no servidor', () => {
   expect(typeof window).toBe('undefined');
   const html = renderToString(createElement(WorkoutApp));
-  expect(html).toContain('Prepare o seu');
+  expect(html).toContain('Configure seu treino.');
   expect(html).toContain('Treinos salvos');
   expect(html).toContain('Sinais sonoros');
-  expect(html).toContain('Rounds Up');
-  expect(html).toContain('Seu treino. Seu ritmo. Seus rounds.');
+  expect(html).toContain('Preview do treino');
   expect(html).not.toContain('RoundFit');
   expect(html.toLowerCase()).not.toContain('kettlebell');
   expect(html).toContain('Manter tela ligada durante o treino');

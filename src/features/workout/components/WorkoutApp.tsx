@@ -1,5 +1,4 @@
 import { AdSlot } from '../../monetization/AdSlot';
-import { SupportLink } from '../../monetization/SupportLink';
 import { useEffect, useRef, useState } from 'react';
 import { createWorkoutAudio } from '../browser/workoutAudio';
 import { createWorkoutDraft, workoutToDraft } from '../form/workoutForm';
@@ -39,7 +38,6 @@ export default function WorkoutApp() {
       }} />}
       onStart={workout => { if (soundsEnabled) unlock(); setSession(workout); }} />
       <AdSlot />
-      <SupportLink />
     </>}
   </div>;
 }

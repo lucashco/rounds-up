@@ -15,9 +15,9 @@ export function phaseLabel(phase: WorkoutPhase): string {
   }
 }
 
-export const primaryButton = 'flex min-h-14 w-full items-center justify-center gap-3 rounded-2xl bg-lime-300 px-6 py-4 text-base font-bold text-stone-950 transition hover:bg-lime-200 active:scale-[0.99]';
-export const secondaryButton = 'flex min-h-14 items-center justify-center gap-2 rounded-2xl border border-white/15 bg-white/5 px-5 py-3 font-semibold text-stone-100 transition hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-40';
-export const fieldClass = 'mt-2 min-h-12 w-full min-w-0 rounded-xl border border-white/15 bg-black/20 px-4 py-3 text-base text-stone-100 outline-none focus:border-lime-300 aria-invalid:border-rose-400';
+export const primaryButton = 'action-primary';
+export const secondaryButton = 'action-secondary';
+export const fieldClass = 'workout-field';
 
 /** Timeline position, including skipped segments; not a measure of time trained. */
 export function totalProgressPercent(state: import('../domain/timerEngine').TimerState, totalDurationMs: number): number {

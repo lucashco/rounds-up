@@ -41,10 +41,9 @@ export function WorkoutBuilder({ draft, onChange, onStart, onSave, library, soun
   const invalid = (field: string) => error?.field === field;
 
   return <>
-    <div className="mb-9 max-w-xl">
-      <p className="mb-3 text-xs font-semibold tracking-[0.2em] text-lime-300 uppercase">Seu treino. Seu ritmo. Seus rounds.</p>
-      <h1 tabIndex={-1} className="outline-none text-4xl leading-tight font-bold tracking-tight sm:text-5xl">Prepare o seu<br /><span className="text-lime-300">próximo round.</span></h1>
-      <p className="mt-4 leading-relaxed text-stone-400">Monte o treino, ajuste o ritmo e deixe o resto com o Rounds Up.</p>
+    <div className="builder-heading">
+      <div><h1 tabIndex={-1} className="outline-none">Configure seu treino.</h1>
+      <p>Escolha o ritmo. O próximo round é seu.</p></div>
     </div>
     {library}
     <form noValidate onSubmit={event => {
@@ -52,17 +51,17 @@ export function WorkoutBuilder({ draft, onChange, onStart, onSave, library, soun
       setSubmitted(true);
       if (result.ok) onStart(result.workout);
       else requestAnimationFrame(() => errorRef.current?.focus());
-    }} className="grid items-start gap-6 lg:grid-cols-[1.5fr_1fr]">
+    }} className="workout-builder">
       <div className="space-y-6">
-        <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-7" aria-labelledby="workout-settings">
-          <h2 id="workout-settings" className="mb-6 text-lg font-semibold"><span className="mr-3 text-lime-300">01</span>Seu treino</h2>
+        <section className="builder-section" aria-labelledby="workout-settings">
+          <h2 id="workout-settings" className="mb-6 text-lg font-semibold">Seu treino</h2>
           <fieldset>
             <legend className="mb-3 text-sm font-medium text-stone-300">Modo de treino</legend>
             <div className="grid grid-cols-2 gap-3">
               {(['FREE', 'GUIDED'] as const).map(mode => <label key={mode} className="relative cursor-pointer">
                 <input className="peer sr-only" type="radio" name="mode" value={mode} checked={draft.mode === mode}
                   onChange={() => setField('mode', mode)} />
-                <span className="block rounded-2xl border border-white/15 bg-black/10 p-4 transition peer-checked:border-lime-300 peer-checked:bg-lime-300/10 peer-focus-visible:outline-2 peer-focus-visible:outline-offset-4 peer-focus-visible:outline-lime-300">
+                <span className="mode-option">
                   <span className="block text-sm font-bold tracking-wide">{mode}</span>
                   <span className="mt-1 block text-xs text-stone-400">{mode === 'FREE' ? 'Rounds no seu ritmo' : 'Circuito de exercícios'}</span>
                 </span>
@@ -86,16 +85,16 @@ export function WorkoutBuilder({ draft, onChange, onStart, onSave, library, soun
           </div>
           <p className="mt-5 text-xs leading-relaxed text-stone-400">Defina minutos e segundos (0–59). Use 0 ou deixe em branco para pular a preparação ou os descansos.</p>
         </section>
-        {draft.mode === 'GUIDED' && <section className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-7" aria-labelledby="circuit-title">
+        {draft.mode === 'GUIDED' && <section className="builder-section" aria-labelledby="circuit-title">
           <div className="mb-2 flex items-center justify-between gap-3">
-            <h2 id="circuit-title" className="text-lg font-semibold"><span className="mr-3 text-lime-300">02</span>Seu circuito</h2>
+            <h2 id="circuit-title" className="text-lg font-semibold">Seu circuito</h2>
             <span className="text-xs text-stone-400">{draft.exercises.length} / 50</span>
           </div>
           <p className="mb-6 text-sm text-stone-400">A mesma sequência se repete em cada round.</p>
           <ol className="space-y-4" aria-label="Exercícios do circuito">
-            {draft.exercises.map((exercise, index) => <li key={exercise.id} className="rounded-2xl border border-white/10 bg-black/10 p-4">
+            {draft.exercises.map((exercise, index) => <li key={exercise.id} className="exercise-row">
               <fieldset>
-                <legend className="px-1 text-xs font-semibold tracking-widest text-lime-300 uppercase">Exercício {index + 1}</legend>
+                <legend className="px-1 text-sm font-semibold text-stone-300">Exercício {index + 1}</legend>
                 <div className="mt-2 grid min-w-0 gap-4 sm:grid-cols-[1fr_12rem]">
                   <label htmlFor={`${exercise.id}-name`} className="min-w-0 text-sm text-stone-300">Nome do exercício {index + 1}
                     <input id={`${exercise.id}-name`} value={exercise.name} maxLength={100} className={fieldClass}
@@ -128,8 +127,8 @@ export function WorkoutBuilder({ draft, onChange, onStart, onSave, library, soun
           </div>
         </section>}
       </div>
-      <aside className="rounded-3xl border border-lime-300/20 bg-lime-300/[0.035] p-6 sm:p-8 lg:sticky lg:top-6" aria-labelledby="summary-title">
-        <p id="summary-title" className="text-xs font-semibold tracking-[0.2em] text-lime-300 uppercase">Visão do treino</p>
+      <aside className="workout-preview" aria-labelledby="summary-title">
+        <p id="summary-title" className="text-lg font-semibold">Preview do treino</p>
         <p className="mt-6 text-sm text-stone-400">Duração total estimada</p>
         <p className="mt-1 text-6xl font-semibold tracking-tighter tabular-nums" data-testid="estimated-duration">{result.ok ? formatDuration(result.workout.timeline.totalDurationMs) : '—'}</p>
         <div className="my-7 grid grid-cols-2 gap-4 border-y border-white/10 py-5">
@@ -137,7 +136,7 @@ export function WorkoutBuilder({ draft, onChange, onStart, onSave, library, soun
           <div><p className="text-xs text-stone-400">Rounds</p><p className="mt-1 font-semibold">{draft.rounds || '—'}</p></div>
         </div>
         {result.ok ? <>
-          <p className="mb-3 text-xs tracking-widest text-stone-400 uppercase">Como começa</p>
+          <p className="mb-3 text-sm font-medium text-stone-400">Como começa</p>
           <ol className="mb-7 space-y-3 text-sm">
             {result.workout.timeline.phases.slice(0, 4).map((phase, index) => <li key={index} className="flex items-center justify-between gap-3">
               <span className="min-w-0 truncate"><span className="mr-2 text-stone-400">{String(index + 1).padStart(2, '0')}</span>{phaseLabel(phase)}</span>
@@ -153,8 +152,8 @@ export function WorkoutBuilder({ draft, onChange, onStart, onSave, library, soun
           if (result.ok) onSave(result.workout);
           else requestAnimationFrame(() => errorRef.current?.focus());
         }}>Salvar treino</button>}
-        <button type="submit" className={primaryButton}>Iniciar treino <span aria-hidden="true">↗</span></button>
-        <p className="mt-4 text-center text-xs text-stone-400">Respire fundo. Um round de cada vez.</p>
+        <button type="submit" className={primaryButton}>Iniciar treino <span aria-hidden="true">▶</span></button>
+        <p className="mt-4 text-center text-xs text-stone-400">Tudo pronto? Comece quando quiser.</p>
       </aside>
     </form>
   </>;

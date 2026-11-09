@@ -29,21 +29,20 @@ export function WorkoutSession({ workout, onEdit, audio, soundsEnabled, soundTog
 
   const announcement = state.status === 'completed' ? 'Treino concluído.'
     : `${state.status === 'paused' ? 'Treino pausado. ' : ''}${state.currentPhase ? phaseLabel(state.currentPhase) : ''}. Round ${state.currentPhase && 'round' in state.currentPhase ? state.currentPhase.round : 1} de ${workout.config.rounds}.`;
-  return <section className="mx-auto max-w-2xl">
+  return <section className="workout-session" data-status={state.status}>
     <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0 flex-1">
-        <p className="text-xs tracking-[0.2em] text-lime-300 uppercase">{workout.config.mode} / Sua sessão</p>
+        <p className="text-sm text-stone-400">{workout.config.mode} / Sua sessão</p>
         <h1 ref={heading} tabIndex={-1} className="mt-2 break-words text-2xl font-bold tracking-tight outline-none sm:text-3xl">{workout.name}</h1>
       </div>
       <button type="button" className="min-h-11 rounded-xl border border-white/10 px-4 text-sm text-stone-300 hover:bg-white/5" onClick={onEdit}>Encerrar e editar</button>
     </div>
     <p className="sr-only" role="status" aria-live="polite" aria-atomic="true">{announcement}</p>
-    <div className="rounded-3xl border border-white/10 bg-white/[0.025] p-5 sm:p-8">
+    <div className="session-stage">
       <TimerDisplay state={state} timeline={workout.timeline} rounds={workout.config.rounds} />
       <TimerControls {...timer} start={interact(timer.start)} resume={interact(timer.resume)} next={interact(timer.next)} onRestart={restart} />
       <div className="mt-4 space-y-2">{soundToggle}<WakeLockToggle enabled={wakeLockEnabled} onChange={onWakeLockChange} status={wakeLockStatus} /></div>
       <TimelineOverview timeline={workout.timeline} />
     </div>
-    <p className="mt-5 text-center text-xs text-stone-400">Movimento com intenção. Um round de cada vez.</p>
   </section>;
 }

@@ -15,7 +15,7 @@ vi.mock('./config', async original => {
 });
 Object.assign(globalThis, { IS_REACT_ACT_ENVIRONMENT: true });
 
-it('publicidade e apoio só aparecem na configuração, nunca em execução, pausa ou conclusão', async () => {
+it('publicidade só aparece na configuração e doações não aparecem em nenhuma etapa', async () => {
   vi.useFakeTimers();
   window.localStorage.clear();
   const container = document.createElement('div');
@@ -34,7 +34,7 @@ it('publicidade e apoio só aparecem na configuração, nunca em execução, pau
   };
   try {
     await act(async () => root.render(createElement(StrictMode, null, createElement(WorkoutApp))));
-    expect(ad()).not.toBeNull(); expect(support()).not.toBeNull();
+    expect(ad()).not.toBeNull(); expect(support()).toBeNull();
     await click('Iniciar treino'); expectAdFree();
     await click('Pausar'); expectAdFree();
     await click('Continuar'); expectAdFree();
@@ -43,7 +43,7 @@ it('publicidade e apoio só aparecem na configuração, nunca em execução, pau
     expect(container.textContent).toContain('Treino concluído!');
     expect(document.querySelector('script[src*="googlesyndication"]')).toBeNull();
     await click('Encerrar e editar');
-    expect(ad()).not.toBeNull(); expect(support()).not.toBeNull();
+    expect(ad()).not.toBeNull(); expect(support()).toBeNull();
   } finally {
     await act(async () => root.unmount());
     container.remove(); vi.clearAllTimers(); vi.useRealTimers();

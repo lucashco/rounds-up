@@ -1,33 +1,97 @@
 @import 'tailwindcss';
 
-@layer base {
-  html {
-    font-family: system-ui, sans-serif;
-    color-scheme: dark;
-    background: #101914;
-    color: #f2f5ef;
-  }
-  body { margin: 0; min-width: 320px; }
+@theme {
+  --color-lime-200: #d7ff96;
+  --color-lime-300: #c5f565;
+  --color-stone-100: #f4f5f0;
+  --color-stone-300: #cbd0d5;
+  --color-stone-400: #a6adb5;
+  --color-stone-950: #101214;
+}
+
+:root {
+  --surface: #191c20;
+  --surface-input: #22262b;
+  --line: #343a42;
+  --accent: #c5f565;
+  --text: #f4f5f0;
+  --muted: #a6adb5;
+  --space-section: 2rem;
+  --space-control: .75rem;
+  --space-panel: clamp(1.25rem, 3vw, 2rem);
+  --radius-control: 0.75rem;
+  --radius-panel: 1.25rem;
+  --font-body: 'Avenir Next', Avenir, 'Segoe UI', sans-serif;
+  --font-display: 'Arial Narrow', 'Helvetica Neue', sans-serif;
 }
 
 @layer base {
-  button:not(:disabled), a, label:has(input[type='radio']) { cursor: pointer; }
-  button:focus-visible, a:focus-visible, input:focus-visible {
-    outline: 2px solid #bef264;
-    outline-offset: 4px;
-  }
+  html { font-family: var(--font-body); color-scheme: dark; background: #101214; color: var(--text); }
+  body { margin: 0; min-width: 320px; }
+  button:not(:disabled), a, label:has(input[type='radio']), summary { cursor: pointer; }
+  button, input, summary, a { -webkit-tap-highlight-color: transparent; }
+  :where(button, a, input, summary, [tabindex]):focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  button:disabled { cursor: not-allowed; }
+  input { accent-color: var(--accent); }
+  h1, h2 { text-wrap: balance; }
+  ::selection { color: #101214; background: var(--accent); }
 }
 
 @layer components {
-  .workout-progress {
-    display: block;
-    overflow: hidden;
-    appearance: none;
-    border: none;
-    border-radius: 999px;
-    background: rgb(255 255 255 / 0.08);
-  }
-  .workout-progress::-webkit-progress-bar { background: rgb(255 255 255 / 0.08); }
+  .site-shell { max-width: 1160px; margin-inline: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
+  .site-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-block: 1.5rem; border-bottom: 1px solid var(--line); }
+  .site-brand { display: flex; align-items: center; gap: .65rem; font-weight: 800; font-size: 1.35rem; letter-spacing: -.06em; }
+  .site-caption { color: var(--muted); font-size: .8rem; }
+  .site-main { padding-block: clamp(2rem, 5vw, 4rem); }
+  .site-footer { border-top: 1px solid var(--line); padding-block: 1.5rem; color: var(--muted); font-size: .75rem; }
+  .skip-link { position: fixed; left: 1rem; top: -5rem; z-index: 10; padding: 1rem; background: var(--accent); color: #101214; border-radius: var(--radius-control); }
+  .skip-link:focus { top: 1rem; }
+  .builder-heading { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-bottom: var(--space-section); }
+  .builder-heading h1 { font-family: var(--font-display); font-size: clamp(2.2rem, 5.5vw, 4rem); font-weight: 800; letter-spacing: -.055em; line-height: 1.05; }
+  .builder-heading p { margin-top: 1rem; color: var(--muted); line-height: 1.6; }
+  .saved-workouts { margin-bottom: var(--space-section); padding-block: .5rem; border-block: 1px solid var(--line); }
+  .workout-builder { display: grid; align-items: start; gap: var(--space-section); }
+  .builder-section { padding: .5rem 0 1.5rem; }
+  .mode-option { display: block; min-height: 92px; padding: 1rem; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--surface); transition: border-color 140ms ease, background-color 140ms ease; }
+  .peer:checked + .mode-option { border-color: var(--accent); background: #242e1b; }
+  .peer:focus-visible + .mode-option { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .workout-field { margin-top: .5rem; min-height: 52px; width: 100%; min-width: 0; border: 1px solid var(--line); border-radius: var(--radius-control); background: var(--surface-input); padding: .75rem 1rem; font-size: 1rem; font-weight: 500; color: var(--text); transition: border-color 140ms ease; }
+  .workout-field:hover { border-color: #626b76; }
+  .workout-field:focus { border-color: var(--accent); }
+  .workout-field[aria-invalid='true'] { border-color: #fb7185; }
+  .exercise-row { border-top: 1px solid var(--line); padding-block: 1.5rem .5rem; }
+  .workout-preview { background: var(--surface); padding: var(--space-panel); border-radius: var(--radius-panel); }
+  .action-primary, .action-secondary { display: flex; align-items: center; justify-content: center; gap: var(--space-control); min-height: 56px; border-radius: var(--radius-control); padding: 1rem 1.5rem; font-weight: 700; transition: background-color 140ms ease, transform 140ms ease; }
+  .action-primary { width: 100%; background: var(--accent); color: #101214; }
+  .action-primary:hover { background: #d7ff96; }
+  .action-primary:active, .action-secondary:active { transform: scale(.985); }
+  .action-secondary { background: var(--surface-input); color: var(--text); }
+  .action-secondary:hover { background: #343a42; }
+  .action-secondary:disabled { opacity: .4; }
+  .timeline-overview { margin-block: 1.25rem; border-top: 1px solid var(--line); padding-top: .5rem; font-size: .875rem; }
+  .workout-session { max-width: 850px; margin-inline: auto; }
+  .session-stage { padding-block: 1rem; }
+  .timer-face { padding-block: 2.5rem; text-align: center; }
+  .session-status { font-size: .875rem; font-weight: 600; color: var(--muted); }
+  [data-status='paused'] .session-status { color: #fcd34d; }
+  [data-status='paused'] .timer-digits { color: var(--text); }
+  .timer-digits { margin-top: 1rem; font-family: var(--font-display); font-size: clamp(4rem, 21vw, 12rem); line-height: 1.1; font-weight: 750; letter-spacing: -.065em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+  .next-phase { margin-top: 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; min-height: 64px; border-bottom: 1px solid var(--line); padding-block: .75rem; }
+  .workout-session [aria-label='Controles do treino'] > button { min-height: 72px; font-size: 1.25rem; }
+  .workout-progress { display: block; overflow: hidden; appearance: none; border: none; border-radius: 999px; background: var(--surface-input); }
+  .workout-progress::-webkit-progress-bar { background: var(--surface-input); }
   .workout-progress::-webkit-progress-value { background: currentColor; border-radius: 999px; }
   .workout-progress::-moz-progress-bar { background: currentColor; border-radius: 999px; }
+  @media (min-width: 1024px) {
+    .workout-builder { grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr); gap: 4rem; }
+    .workout-preview { position: sticky; top: 1.5rem; }
+  }
+  @media (max-width: 420px) {
+    .site-caption { max-width: 6rem; text-align: right; }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+  .action-primary:active, .action-secondary:active { transform: none; }
 }
