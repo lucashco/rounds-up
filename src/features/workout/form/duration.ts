@@ -1,3 +1,6 @@
+import { renderMessage } from '../../../i18n/core';
+import type { Message } from '../../../i18n/core';
+
 /** Legacy plain values are total seconds; edited values use minutes:seconds. */
 export function durationParts(value: string): { minutes: string; seconds: string } {
   if (value.includes(':')) {
@@ -21,12 +24,18 @@ export function durationSeconds(value: string): number {
   return minutes * 60 + seconds;
 }
 
-export function durationInputError(value: string, allowZero: boolean): string | null {
+export function durationInputIssue(value: string, allowZero: boolean): Message | null {
   const parts = durationParts(value);
   const seconds = value.trim() === ''
     ? allowZero ? 0 : NaN
     : durationSeconds(value.includes(':') ? value : `${parts.minutes}:${parts.seconds}`);
-  if (!Number.isFinite(seconds) || seconds < 0) return 'Use minutos inteiros não negativos e segundos de 0 a 59.';
-  if (seconds === 0 && !allowZero) return 'A duração deve ser maior que zero.';
+  if (!Number.isFinite(seconds) || seconds < 0) return { key: 'invalidDuration', params: {} };
+  if (seconds === 0 && !allowZero) return { key: 'positiveDuration', params: {} };
   return null;
+}
+
+/** Compatibility helper for form conversion and existing consumers. */
+export function durationInputError(value: string, allowZero: boolean): string | null {
+  const issue = durationInputIssue(value, allowZero);
+  return issue ? renderMessage('pt-BR', issue) : null;
 }

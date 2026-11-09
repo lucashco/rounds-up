@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import { ptBR } from '../i18n/pt-BR';
 ---
 
 <!doctype html>
@@ -9,8 +10,8 @@ import '../styles/global.css';
 		<meta name="viewport" content="width=device-width" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
-		<meta name="description" content="Rounds Up: timer para qualquer treino em rounds. Seu treino. Seu ritmo. Seus rounds." />
-		<title>Rounds Up — Seu treino. Seu ritmo. Seus rounds.</title>
+		<meta name="description" content={ptBR.metaDescription} />
+		<title>{ptBR.metaTitle}</title>
 	</head>
 	<body>
 		<slot />

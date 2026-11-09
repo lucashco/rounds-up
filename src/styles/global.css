@@ -29,8 +29,8 @@
   html { font-family: var(--font-body); color-scheme: dark; background: #101214; color: var(--text); }
   body { margin: 0; min-width: 320px; }
   button:not(:disabled), a, label:has(input[type='radio']), summary { cursor: pointer; }
-  button, input, summary, a { -webkit-tap-highlight-color: transparent; }
-  :where(button, a, input, summary, [tabindex]):focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  button, input, select, summary, a { -webkit-tap-highlight-color: transparent; }
+  :where(button, a, input, select, summary, [tabindex]):focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
   button:disabled { cursor: not-allowed; }
   input { accent-color: var(--accent); }
   h1, h2 { text-wrap: balance; }
@@ -41,6 +41,7 @@
   .site-shell { max-width: 1160px; margin-inline: auto; padding-inline: clamp(1rem, 4vw, 3rem); }
   .site-header { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-block: 1.5rem; border-bottom: 1px solid var(--line); }
   .site-brand { display: flex; align-items: center; gap: .65rem; font-weight: 800; font-size: 1.35rem; letter-spacing: -.06em; }
+  .language-select { min-height: 44px; padding: .5rem .75rem; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-control); font: inherit; }
   .site-caption { color: var(--muted); font-size: .8rem; }
   .site-main { padding-block: clamp(2rem, 5vw, 4rem); }
   .site-footer { border-top: 1px solid var(--line); padding-block: 1.5rem; color: var(--muted); font-size: .75rem; }

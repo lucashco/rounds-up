@@ -1,14 +1,20 @@
+import { renderMessage } from '../../../i18n/core';
+import type { Message } from '../../../i18n/core';
 import type { WorkoutConfig } from '../domain/types';
-import { validateWorkoutConfig } from '../domain/validateWorkoutConfig';
+import { WorkoutConfigError, validateWorkoutConfig } from '../domain/validateWorkoutConfig';
 import { buildTimeline } from '../domain/buildTimeline';
 
 export const SAVED_WORKOUTS_KEY = 'roundfit.workouts';
 export type SavedWorkout = Readonly<{ name: string; config: WorkoutConfig }>;
 export type WorkoutStorage = Pick<Storage, 'getItem' | 'setItem'>;
-type Failure = { ok: false; kind: 'error'; message: string };
+type Failure = { ok: false; kind: 'error'; message: string; issue: Message };
 type Success = { ok: true; workouts: SavedWorkout[] };
 export type StorageResult = Success | Failure;
-export type SaveResult = StorageResult | { ok: false; kind: 'conflict'; message: string; revision: string };
+export type SaveResult = StorageResult | { ok: false; kind: 'conflict'; message: string; issue: Message; revision: string };
+
+class WorkoutStorageError extends Error {
+  constructor(readonly issue: Message) { super(renderMessage('pt-BR', issue)); }
+}
 
 function object(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
@@ -17,10 +23,10 @@ const nameKey = (name: string) => name.trim().normalize('NFC').toLocaleLowerCase
 
 /** Explicit serialization allowlist: no timer state, timeline, or unknown fields. */
 export function validateSavedWorkout(value: unknown): SavedWorkout {
-  if (!object(value) || typeof value.name !== 'string' || !value.name.trim() || value.name.length > 120) throw new Error('Nome de treino salvo inválido.');
+  if (!object(value) || typeof value.name !== 'string' || !value.name.trim() || value.name.length > 120) throw new WorkoutStorageError({ key: 'invalidSavedName', params: {} });
   validateWorkoutConfig(value.config);
   const config = value.config;
-  if (config.rounds > 100 || (config.mode === 'GUIDED' && config.exercises.length > 50)) throw new Error('Treino salvo excede os limites de 100 rounds ou 50 exercícios.');
+  if (config.rounds > 100 || (config.mode === 'GUIDED' && config.exercises.length > 50)) throw new WorkoutStorageError({ key: 'savedLimits', params: {} });
   buildTimeline(config);
   const base = { rounds: config.rounds, preparationMs: config.preparationMs ?? 0, restBetweenRoundsMs: config.restBetweenRoundsMs ?? 0 };
   return { name: value.name.trim(), config: config.mode === 'FREE'
@@ -31,24 +37,28 @@ export function validateSavedWorkout(value: unknown): SavedWorkout {
 
 function decode(raw: string | null): SavedWorkout[] {
   if (raw === null) return [];
-  if (raw.length > 1_000_000) throw new Error('O arquivo de treinos salvos é muito grande.');
+  if (raw.length > 1_000_000) throw new WorkoutStorageError({ key: 'savedTooLarge', params: {} });
   let data: unknown;
-  try { data = JSON.parse(raw); } catch { throw new Error('Os treinos salvos contêm JSON inválido. Os dados originais foram preservados.'); }
-  if (!object(data) || data.version !== 1) throw new Error('Versão dos treinos salvos não suportada. Os dados originais foram preservados.');
-  if (!Array.isArray(data.workouts) || data.workouts.length > 100) throw new Error('Lista de treinos salvos inválida.');
+  try { data = JSON.parse(raw); } catch { throw new WorkoutStorageError({ key: 'invalidJson', params: {} }); }
+  if (!object(data) || data.version !== 1) throw new WorkoutStorageError({ key: 'unsupportedVersion', params: {} });
+  if (!Array.isArray(data.workouts) || data.workouts.length > 100) throw new WorkoutStorageError({ key: 'invalidList', params: {} });
   const names = new Set<string>();
   return data.workouts.map((value: unknown) => {
     const workout = validateSavedWorkout(value);
-    if (names.has(nameKey(workout.name))) throw new Error('Há nomes duplicados nos treinos salvos.');
+    if (names.has(nameKey(workout.name))) throw new WorkoutStorageError({ key: 'duplicateNames', params: {} });
     names.add(nameKey(workout.name));
     return workout;
   });
 }
-const failure = (error: unknown): Failure => ({ ok: false, kind: 'error', message: error instanceof Error ? error.message : 'Armazenamento local indisponível.' });
+const failure = (error: unknown): Failure => {
+  const issue: Message = error instanceof WorkoutStorageError ? error.issue
+    : { key: error instanceof WorkoutConfigError ? 'errorConfig' : 'storageError', params: {} };
+  return { ok: false, kind: 'error', issue, message: renderMessage('pt-BR', issue) };
+};
 function write(storage: WorkoutStorage, workouts: SavedWorkout[]): Success {
-  if (workouts.length > 100) throw new Error('Limite de 100 treinos salvos atingido.');
+  if (workouts.length > 100) throw new WorkoutStorageError({ key: 'storageLimit', params: {} });
   const encoded = JSON.stringify({ version: 1, workouts });
-  if (encoded.length > 1_000_000) throw new Error('Limite de espaço dos treinos salvos atingido. Exclua um treino antes de salvar outro.');
+  if (encoded.length > 1_000_000) throw new WorkoutStorageError({ key: 'storageSpace', params: {} });
   storage.setItem(SAVED_WORKOUTS_KEY, encoded);
   return { ok: true, workouts };
 }
@@ -65,7 +75,8 @@ export function saveWorkout(storage: WorkoutStorage, input: unknown, confirmedRe
     const workouts = decode(raw);
     const index = workouts.findIndex(item => nameKey(item.name) === nameKey(workout.name));
     if (index >= 0 && raw !== confirmedRevision) return {
-      ok: false, kind: 'conflict', revision: raw!, message: `Já existe um treino chamado “${workout.name}”. Substituir a configuração salva?`,
+      ok: false, kind: 'conflict', revision: raw!, issue: { key: 'conflict', params: { name: workout.name } },
+      message: renderMessage('pt-BR', { key: 'conflict', params: { name: workout.name } }),
     };
     if (index >= 0) workouts[index] = workout;
     else workouts.push(workout);

@@ -1,3 +1,5 @@
+import { translator } from '../../../i18n/core';
+import type { Locale } from '../../../i18n/core';
 import type { WorkoutPhase } from '../domain/types';
 
 export function formatDuration(ms: number): string {
@@ -5,13 +7,14 @@ export function formatDuration(ms: number): string {
   return `${Math.floor(seconds / 60).toString().padStart(2, '0')}:${(seconds % 60).toString().padStart(2, '0')}`;
 }
 
-export function phaseLabel(phase: WorkoutPhase): string {
+export function phaseLabel(phase: WorkoutPhase, locale: Locale = 'pt-BR'): string {
+  const t = translator(locale);
   switch (phase.type) {
-    case 'PREPARATION': return 'Preparação';
-    case 'FREE': return 'Round livre';
+    case 'PREPARATION': return t('phasePreparation');
+    case 'FREE': return t('phaseFree');
     case 'EXERCISE': return phase.exerciseName;
-    case 'REST_BETWEEN_EXERCISES': return 'Descanso entre exercícios';
-    case 'REST_BETWEEN_ROUNDS': return 'Descanso entre rounds';
+    case 'REST_BETWEEN_EXERCISES': return t('phaseExerciseRest');
+    case 'REST_BETWEEN_ROUNDS': return t('roundRest');
   }
 }
 

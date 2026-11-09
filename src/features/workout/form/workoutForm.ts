@@ -1,3 +1,5 @@
+import { renderMessage } from '../../../i18n/core';
+import type { Message } from '../../../i18n/core';
 import { durationInputError, durationSeconds } from './duration';
 import { buildTimeline } from '../domain/buildTimeline';
 import type { WorkoutConfig, WorkoutTimeline } from '../domain/types';
@@ -22,7 +24,7 @@ export type WorkoutSessionConfig = {
 };
 export type FormResult =
   | { ok: true; workout: WorkoutSessionConfig }
-  | { ok: false; field: string; message: string };
+  | { ok: false; field: string; message: string; issue: Message };
 
 export function createWorkoutDraft(): WorkoutDraft {
   return {
@@ -36,32 +38,30 @@ const number = (value: string): number => value.trim() === '' ? NaN : Number(val
 const milliseconds = (value: string): number => durationInputError(value, true) ? NaN : durationSeconds(value) * 1_000;
 const optionalMilliseconds = (value: string): number => value.trim() === '' ? 0 : milliseconds(value);
 
-function readableError(error: WorkoutConfigError): string {
+function readableError(error: WorkoutConfigError): Message {
   const exercise = /^exercises\[(\d+)\]\.(\w+)$/.exec(error.field);
-  if (exercise) {
-    const index = Number(exercise[1]) + 1;
-    return exercise[2] === 'name'
-      ? `Informe o nome do exercício ${index}.`
-      : `Informe uma duração maior que zero, em segundos, para o exercício ${index}.`;
-  }
-  const messages: Record<string, string> = {
-    rounds: 'Informe uma quantidade inteira de rounds, de 1 a 100.',
-    roundDurationMs: 'A duração do round deve ser um número maior que zero, em segundos.',
-    preparationMs: 'A preparação deve ser um número igual ou maior que zero, em segundos.',
-    restBetweenRoundsMs: 'O descanso entre rounds deve ser um número igual ou maior que zero, em segundos.',
-    restBetweenExercisesMs: 'O descanso entre exercícios deve ser um número igual ou maior que zero, em segundos.',
-    exercises: 'Adicione pelo menos um exercício ao circuito.',
-    totalDurationMs: 'A duração total é muito grande. Reduza as durações ou os rounds.',
+  if (exercise) return { key: exercise[2] === 'name' ? 'errorExerciseName' : 'errorExerciseDuration', params: { index: Number(exercise[1]) + 1 } };
+  const messages: Record<string, Message> = {
+    rounds: { key: 'errorRounds', params: {} },
+    roundDurationMs: { key: 'errorRoundDuration', params: {} },
+    preparationMs: { key: 'errorPreparation', params: {} },
+    restBetweenRoundsMs: { key: 'errorRoundRest', params: {} },
+    restBetweenExercisesMs: { key: 'errorExerciseRest', params: {} },
+    exercises: { key: 'errorExercises', params: {} },
+    totalDurationMs: { key: 'errorTotal', params: {} },
   };
-  return messages[error.field] ?? 'Revise a configuração do treino.';
+  return messages[error.field] ?? { key: 'errorConfig', params: {} };
+}
+function invalidForm(field: string, issue: Message): FormResult {
+  return { ok: false, field, issue, message: renderMessage('pt-BR', issue) };
 }
 
 /** Form-only conversion. Domain validation and timeline generation remain in buildTimeline. */
 export function prepareWorkout(draft: WorkoutDraft): FormResult {
-  if (draft.name.trim() === '') return { ok: false, field: 'name', message: 'Informe o nome do treino.' };
+  if (draft.name.trim() === '') return invalidForm('name', { key: 'errorName', params: {} });
   // Bound interactive workload before building arrays; domain contracts stay unrestricted.
   if (number(draft.rounds) > 100) {
-    return { ok: false, field: 'rounds', message: 'Use no máximo 100 rounds por treino.' };
+    return invalidForm('rounds', { key: 'errorMaxRounds', params: {} });
   }
   const base = {
     rounds: number(draft.rounds), preparationMs: optionalMilliseconds(draft.preparationSeconds),
@@ -76,7 +76,7 @@ export function prepareWorkout(draft: WorkoutDraft): FormResult {
   try {
     return { ok: true, workout: { name: draft.name.trim(), config, timeline: buildTimeline(config) } };
   } catch (error: unknown) {
-    if (error instanceof WorkoutConfigError) return { ok: false, field: error.field, message: readableError(error) };
+    if (error instanceof WorkoutConfigError) return invalidForm(error.field, readableError(error));
     throw error;
   }
 }

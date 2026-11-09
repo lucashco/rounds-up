@@ -1,4 +1,5 @@
-import { durationInputError, durationParts } from '../form/duration';
+import { useI18n } from '../../../i18n/I18nProvider';
+import { durationInputIssue, durationParts } from '../form/duration';
 import { fieldClass } from './presentation';
 
 type Props = {
@@ -7,25 +8,26 @@ type Props = {
 };
 
 export function DurationInput({ id, label, value, onChange, allowZero = true, invalid }: Props) {
+  const { t, message: localizeMessage } = useI18n();
   const { minutes, seconds } = durationParts(value);
-  const message = durationInputError(value, allowZero);
+  const message = durationInputIssue(value, allowZero);
   const description = [message ? `${id}-error` : '', invalid ? 'workout-error' : ''].filter(Boolean).join(' ') || undefined;
   return <fieldset className="min-w-0">
     <legend className="text-sm font-medium text-stone-300">{label}</legend>
     <div className="mt-2 grid grid-cols-2 gap-2">
-      <label htmlFor={`${id}-minutes`} className="min-w-0 text-xs text-stone-400">Minutos
+      <label htmlFor={`${id}-minutes`} className="min-w-0 text-xs text-stone-400">{t('minutes')}
         <input id={`${id}-minutes`} type="number" inputMode="numeric" min={0} step={1} value={minutes}
-          aria-label={`${label}: minutos`} className={`${fieldClass} mt-1 tabular-nums`}
+          aria-label={t('minutesLabel', { label })} className={`${fieldClass} mt-1 tabular-nums`}
           aria-invalid={Boolean(message || invalid) || undefined} aria-describedby={description}
           onChange={event => onChange(`${event.target.value}:${seconds}`)} />
       </label>
-      <label htmlFor={id} className="min-w-0 text-xs text-stone-400">Segundos
+      <label htmlFor={id} className="min-w-0 text-xs text-stone-400">{t('seconds')}
         <input id={id} type="number" inputMode="decimal" min={0} max={59} step="any" value={seconds}
-          aria-label={`${label}: segundos`} className={`${fieldClass} mt-1 tabular-nums`}
+          aria-label={t('secondsLabel', { label })} className={`${fieldClass} mt-1 tabular-nums`}
           aria-invalid={Boolean(message || invalid) || undefined} aria-describedby={description}
           onChange={event => onChange(`${minutes}:${event.target.value}`)} />
       </label>
     </div>
-    {message && <p id={`${id}-error`} className="mt-2 text-xs text-rose-200">{message}</p>}
+    {message && <p id={`${id}-error`} className="mt-2 text-xs text-rose-200">{localizeMessage(message)}</p>}
   </fieldset>;
 }
